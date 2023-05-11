@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>심전도 판독 페이지</title>
+	<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+	<style>
+		body {
+			text-align: center;
+			margin-top: 100px;
+			margin-bottom: 50px;
+			background: #fff;
+			font-family: 'Noto Sans KR', sans-serif;
+			font-weight: 700;
+		}
+
+		button {
+			width: 95%;
+			height: 60px;
+			display: block;
+			margin: auto;
+			margin-bottom: 10px;
+			font-size: 12pt;
+			background-color: #eef1f4;
+			border-radius: 20px;
+			border: 0;
+			outline: 0;
+			font-family: 'Noto Sans KR', sans-serif;
+		}
+
+		.selected {
+			transition: background-color 0.3s ease;
+			background-color: lightskyblue;
+		}
+
+		#divresult {
+			top: 0;
+			left: 0;
+			right: 0;
+			font-size: 24pt;
+			text-align: center;
+			position: fixed;
+			background-color: #53688A;
+			color: white;
+			overflow: hidden;
+			font-family: 'Noto Sans KR', sans-serif;
+		}
+
+		p {
+			font-size: 20pt;
+			font-family: 'Noto Sans KR', sans-serif;
+		}
+	</style>
+	<script>
+		function highlightBtn(button, question) {
+			var buttons = document.querySelectorAll('button');
+			for (var i = 0; i < buttons.length; i++) {
+				if (buttons[i].getAttribute('onclick').includes(question)) {
+					buttons[i].classList.remove('selected');
+				}
+			}
+			button.classList.add('selected');
+		}
+
+		function showContent(selectedOption) {//시작
+			var contentElement = document.getElementById('content1');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>RR 규칙성</p>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent1(\'select1\')">규칙적</button>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent1(\'select2\')">불규칙적</button>\
+				<div id="content2"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>RR 규칙성</p>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent2(\'select1\')">규칙적</button>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent2(\'select2\')">불규칙적</button>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent2(\'select3\')">간헐적 조기 수축</button>\
+				<div id="content2"></div>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>QRS 모양</p>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent3(\'select1\')">좁은 QRS 간격</button>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent3(\'select2\')">넓은 QRS간격, 동일한 모양</button>\
+				<button onclick="highlightBtn(this, \'btn2\');showContent3(\'select3\')">넓은 QRS 간격, 비정형</button>\
+				<div id="content2"></div>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent1(selectedOption) {//서맥
+			var contentElement = document.getElementById('content2');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P 모양</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent11(\'select1\')">정상</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent11(\'select2\')">없음</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent11(\'select3\')">톱날모양 혹은 세동</button>\
+				<div id="content3"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>P 모양</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent12(\'select1\')">규칙적 존재</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent12(\'select2\')">간헐적이고 느린 P 존재</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent12(\'select3\')">톱날모양/세동</button>\
+				<div id="content3"></div>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent11(selectedOption) {//서맥-규칙적
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 대응관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent111(\'select1\')">1:1대응</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent111(\'select2\')">2:1대응</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent111(\'select3\')">없음</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 방실접합부 서맥</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방조동(세동)과 완전방실차단</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent111(selectedOption){//서맥-규칙적-정상
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동성서맥</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 2:1 방실차단</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 완전방실차단</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent12(selectedOption) {//서맥-불규칙적
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent121(\'select1\')">간헐적 대응, 차단 발생 전 PR간격 점진적 증가</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent121(\'select2\')">간헐적 대응, 차단 발생 전 PR간격 일정</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent122(\'select1\')">1:1 대응</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent122(\'select2\')">QRS의 빈도가 P보다 높음</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방조동(세동)과 느린심실반응</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent121(selectedOption) {//서맥-불규칙적-규칙적 존재
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 2도, 모비즈 1형 방실차단</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 2도, 모비츠 2형 방실차단</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent122(selectedOption) {//서맥-불규칙적-간헐적이고 느린 p 존재
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동성서맥</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동성서맥과 방실접합부 이탈맥</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent2(selectedOption) {	//정상
+			var contentElement = document.getElementById('content2');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P 모양</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent21(\'select1\')">정상</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent21(\'select2\')">비정상</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent21(\'select3\')">없음</button>\
+				<div id="content3"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>P 모양</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent22(\'select1\')">정상</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent22(\'select2\')">비정상</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent22(\'select3\')">톱날모양</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent22(\'select4\')">없음 혹은 세동</button>\
+				<div id="content3"></div>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>조기수축시 QRS 간격</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent23(\'select1\')">넓은 QRS 간격</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent23(\'select2\')">좁은 QRS 간격</button>\
+				<div id="content3"></div>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent21(selectedOption) {//정상-규칙적
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 대응관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent211(\'select1\')">1:1 대응</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent211(\'select2\')">무관</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 이소성 심방맥</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 방실접합부 리듬</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent211(selectedOption) {//정상-규칙적-정상
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동율동</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 완전방실차단</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent22(selectedOption) {//정상-불규칙적
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 대응관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent221(\'select1\')">1:1 대응</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent221(\'select2\')">간할적 대응, 차단 발생 전 PR 간격 점진적 증가</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent221(\'select3\')">간헐적 대응, 차단 발생 전 PR 간격 일정</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 이소성 심방맥</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방조동</p>';
+			} else if (selectedOption === 'select4') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방세동</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent221(selectedOption) {//정상-불규칙적-정상
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동성 부정맥</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 2도, 모비츠 1형 방실차단</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : 2도, 모비츠 2형 방실차단</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent23(selectedOption) {//정상-간헐적 조기 수축
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심실조기수축</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방조기수축</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent3(selectedOption) {//빈맥
+			var contentElement = document.getElementById('content2');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>PR 규칙성</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent31(\'select1\')">규칙적</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent31(\'select2\')">불규칙적</button>\
+				<div id="content3"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>PR 규칙성</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent32(\'select1\')">규칙적</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent32(\'select2\')">불규칙적</button>\
+				<div id="content3"></div>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>맥박</p>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent33(\'select1\')">있음</button>\
+				<button onclick="highlightBtn(this, \'btn3\');showContent33(\'select2\')">없음</button>\
+				<div id="content3"></div>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent31(selectedOption) {//빈맥-좁은 QRS간격
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P모양</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select1\')">정상</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select2\')">비정상</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select3\')">없음</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select4\')">톱날모양</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select5\')">세동</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>P모양</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select2\')">비정상</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select4\')">톱날모양</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent311(\'select5\')">없음 혹은 세동</button>\
+				<div id="content4"></div>';
+			} 
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent311(selectedOption) {//빈맥-좁은 QRS간격-규칙적 빈맥-좁은 QRS간격-불규칙적 (같은 보기로 인해 공유)
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 동성빈맥</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방빈맥</p>';
+			} else if (selectedOption === 'select3') {
+				contentElement.innerHTML = '\
+				<p>결과 : PSVT</p>';
+			} else if (selectedOption === 'select4') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방조동</p>';
+			} else if (selectedOption === 'select5') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방세동</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent32(selectedOption) {//빈맥-넓은 QRS간격, 동일한 모양
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>P-QRS 관계</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent321(\'select1\')">P 없음, 혹은 P와 QRS 무관</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent321(\'select2\')">P, QRS에 대응관계 존재</button>\
+				<div id="content4"></div>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>P모양</p>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent322(\'select1\')">없음 혹은 세동</button>\
+				<button onclick="highlightBtn(this, \'btn4\');showContent322(\'select2\')">규칙적 P 존재</button>\
+				<div id="content4"></div>';
+			} 
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent321(selectedOption) {//빈맥-넓은 QRS간격, 동일한 모양-규칙적
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심실빈맥</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 상심실성 빈맥</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent322(selectedOption) {//빈맥-넓은 QRS간격, 동일한 모양-불규칙적
+			var contentElement = document.getElementById('content4');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심방세동</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 상심실성 빈맥</p>';
+			}
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+
+		function showContent33(selectedOption) {//빈맥-넓은 QRS간격, 비정형
+			var contentElement = document.getElementById('content3');
+
+			if (selectedOption === 'select1') {
+				contentElement.innerHTML = '\
+				<p>결과 : 다소성 심실빈맥 혹은</br>WPW 증후군과 심방세동</p>';
+			} else if (selectedOption === 'select2') {
+				contentElement.innerHTML = '\
+				<p>결과 : 심실세동 혹은</br>Torsades de pointes</p>';
+			} 
+			contentElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+		}
+	</script>
+</head>
+
+<body>
+	<div id="divresult">심전도 판독 페이지</div>
+	<p>심박동수</p>
+	<button onclick="highlightBtn(this, 'btn1');showContent('select1')">서맥 (&lt;60회/분)</button>
+	<button onclick="highlightBtn(this, 'btn1');showContent('select2')">정상 (60~100회/분)</button>
+	<button onclick="highlightBtn(this, 'btn1');showContent('select3')">빈맥 (&gt;100회/분)</button>
+	<div id="content1"></div>
+</body>
+
+</html>
